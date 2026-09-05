@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API reference — Sanctum Timestamp</title>
+<meta name="description" content="Log append, inclusion proof, consistency proof, tree head, and attested submission endpoints. Receipt format and OpenTimestamps compatibility.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://sanctumsecops.org/docs.html">
+<meta name="theme-color" content="#0A0814">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/brand.css">
+<style>
+.ep{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:9px}
+.verb{font-family:var(--mono);font-size:10px;letter-spacing:.14em;padding:4px 9px;border-radius:5px;
+  background:rgba(124,58,237,.18);color:var(--violet-lt)}
+.verb.post{background:rgba(245,208,96,.15);color:var(--gold)}
+.path{font-family:var(--mono);font-size:13px;color:var(--ink)}
+.auth{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:34px">
+    <p class="kicker">API v1 · base https://api.sanctumsecops.org</p>
+    <h1>API <span class="gold">reference</span></h1>
+    <p class="lede" style="margin-top:16px">
+      The log is the product surface; the website is a convenience wrapper. Open-tier endpoints
+      require no authentication. Attested and automation endpoints authenticate with an
+      <code>X-API-Key</code> header bound to an enrolled organisation.
+    </p>
+    <div class="chips">
+      <span class="chip">Media type <b>application/json</b></span>
+      <span class="chip">Digests <b>sha256: prefixed hex</b></span>
+      <span class="chip">Times <b>RFC 3339 UTC</b></span>
+      <span class="chip">Errors <b>RFC 9457 problem+json</b></span>
+    </div>
+    <div class="notice">
+      <p><b>Contract, not deployment.</b> This documents the intended interface so integrators can
+        build against a stable shape. The endpoints are not yet serving on this domain.</p>
+    </div>
+  </header>
+
+  <section>
+    <div class="sechead"><h2>Open tier — no authentication</h2></div>
+
+    <div class="grid" style="gap:12px">
+      <div class="card">
+        <div class="ep"><span class="verb post">POST</span><span class="path">/log/append</span>
+          <span class="auth">public</span></div>
+        <p>Submit a digest for inclusion in the next aggregation window. Idempotent per digest
+          within a window.</p>
+        <div class="console" style="margin-top:14px"><div class="bar">Request / response</div>
+<pre><span class="c-c">// request</span>
+{ <span class="c-k">"digest"</span>: <span class="c-s">"sha256:9f2b41c8…"</span> }
+
+<span class="c-c">// 202 Accepted</span>
+{ <span class="c-k">"leaf"</span>: 1284417,
+  <span class="c-k">"pending_window"</span>: <span class="c-s">"2026-08-27T18:05:00Z"</span>,
+  <span class="c-k">"receipt_url"</span>: <span class="c-s">"/log/inclusion-proof?digest=sha256:9f2b41c8…"</span> }</pre></div>
+      </div>
+
+      <div class="card">
+        <div class="ep"><span class="verb">GET</span><span class="path">/log/tree-head</span>
+          <span class="auth">public</span></div>
+        <p>Latest signed tree head. Watchers should poll this and retain history — retained tree
+          heads are what make operator misbehaviour provable.</p>
+        <div class="console" style="margin-top:14px"><div class="bar">200 OK</div>
+<pre>{ <span class="c-k">"tree_size"</span>: 1284418,
+  <span class="c-k">"root_hash"</span>: <span class="c-s">"3ae0…"</span>,
+  <span class="c-k">"timestamp"</span>: <span class="c-s">"2026-08-27T18:04:11Z"</span>,
+  <span class="c-k">"signature"</span>: {
+    <span class="c-k">"scheme"</span>: <span class="c-s">"composite"</span>,
+    <span class="c-k">"ecdsa_p256"</span>: <span class="c-s">"MEUCIQD…"</span>,
+    <span class="c-k">"ml_dsa_65"</span>: <span class="c-s">"kR3nA9…"</span> } }</pre></div>
+      </div>
+
+      <div class="card">
+        <div class="ep"><span class="verb">GET</span><span class="path">/log/inclusion-proof</span>
+          <span class="auth">public</span></div>
+        <p>Audit path for a digest. Query by <code>digest</code> or <code>leaf</code>. Returns the
+          full receipt body. <code>404</code> until the containing window is sealed.</p>
+      </div>
+
+      <div class="card">
+        <div class="ep"><span class="verb">GET</span><span class="path">/log/consistency-proof</span>
+          <span class="auth">public</span></div>
+        <p>Proof that tree <code>?first=n</code> is a prefix of <code>?second=m</code>. The endpoint
+          a watcher uses to confirm the log has only ever been appended to.</p>
+      </div>
+
+      <div class="card">
+        <div class="ep"><span class="verb">GET</span><span class="path">/log/verify</span>
+          <span class="auth">public</span></div>
+        <p>Server-side convenience check of a submitted receipt. Provided for tooling, but offline
+          verification is the intended path and always will be — never require this endpoint.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead"><h2>Attested tier — X-API-Key</h2></div>
+    <div class="grid" style="gap:12px">
+      <div class="card">
+        <div class="ep"><span class="verb post">POST</span><span class="path">/attest/append</span>
+          <span class="auth">api key + piv signature</span></div>
+        <p>Submit a digest together with a signature produced by an enrolled YubiKey PIV slot. The
+          server validates the attestation chain against the enrolled token before accepting.</p>
+        <div class="console" style="margin-top:14px"><div class="bar">Request</div>
+<pre>{ <span class="c-k">"digest"</span>: <span class="c-s">"sha256:9f2b41c8…"</span>,
+  <span class="c-k">"signer_id"</span>: <span class="c-s">"sso:signer:0142"</span>,
+  <span class="c-k">"piv_signature"</span>: <span class="c-s">"MEQCIF…"</span>,
+  <span class="c-k">"piv_slot"</span>: <span class="c-s">"9c"</span> }</pre></div>
+      </div>
+      <div class="card">
+        <div class="ep"><span class="verb post">POST</span><span class="path">/attest/batch</span>
+          <span class="auth">api key</span></div>
+        <p>Up to 1,000 digests per call for CI/CD and bulk anchoring. Metered against the
+          automation allowance.</p>
+      </div>
+      <div class="card">
+        <div class="ep"><span class="verb">GET</span><span class="path">/signers/{signer_id}</span>
+          <span class="auth">public</span></div>
+        <p>Public signer registry entry: organisation, verification method used at enrollment,
+          attestation certificate, enrollment and revocation timestamps. Public by design — an
+          identity claim nobody can look up is not an identity claim.</p>
+      </div>
+      <div class="card">
+        <div class="ep"><span class="verb post">POST</span><span class="path">/signers/{signer_id}/revoke</span>
+          <span class="auth">api key</span></div>
+        <p>Immediately revokes a token. Never billed and never rate-limited — expensive revocation
+          produces unrevoked compromised keys.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="receipts">
+    <div class="sechead">
+      <h2>Receipt format</h2>
+      <p>Self-contained by design. Everything a verifier needs is inside the file.</p>
+    </div>
+    <div class="console"><div class="bar">receipt v1 — attested example</div>
+<pre>{
+  <span class="c-k">"version"</span>: 1,
+  <span class="c-k">"log"</span>: <span class="c-s">"sanctumsecops.org/log/v1"</span>,
+  <span class="c-k">"digest"</span>: <span class="c-s">"sha256:9f2b41c8…"</span>,
+  <span class="c-k">"leaf_index"</span>: 1284417,
+  <span class="c-k">"tree_size"</span>: 1284418,
+  <span class="c-k">"audit_path"</span>: [<span class="c-s">"7c1d…"</span>, <span class="c-s">"a03f…"</span>, <span class="c-s">"…"</span>],
+  <span class="c-k">"tree_head"</span>: {
+    <span class="c-k">"tree_size"</span>: 1284418,
+    <span class="c-k">"root_hash"</span>: <span class="c-s">"3ae0…"</span>,
+    <span class="c-k">"timestamp"</span>: <span class="c-s">"2026-08-27T18:04:11Z"</span>,
+    <span class="c-k">"signature"</span>: { <span class="c-k">"scheme"</span>: <span class="c-s">"composite"</span>,
+                    <span class="c-k">"ecdsa_p256"</span>: <span class="c-s">"…"</span>,
+                    <span class="c-k">"ml_dsa_65"</span>: <span class="c-s">"…"</span> }
+  },
+  <span class="c-k">"attestation"</span>: {
+    <span class="c-k">"signer_id"</span>: <span class="c-s">"sso:signer:0142"</span>,
+    <span class="c-k">"organization"</span>: <span class="c-s">"Example Defense Systems Inc"</span>,
+    <span class="c-k">"verified_by"</span>: <span class="c-s">"cage"</span>,
+    <span class="c-k">"piv_slot"</span>: <span class="c-s">"9c"</span>,
+    <span class="c-k">"piv_attestation_chain"</span>: [<span class="c-s">"MIIC…"</span>, <span class="c-s">"MIIC…"</span>],
+    <span class="c-k">"signature"</span>: <span class="c-s">"MEQCIF…"</span>
+  }
+}</pre></div>
+    <p style="margin-top:18px">Open-tier receipts are byte-identical except that
+      <code>attestation</code> is <code>null</code>. A verifier must treat a null attestation as
+      proof of <em>when</em> only, and must never infer authorship from log membership alone.</p>
+  </section>
+
+  <section id="ots">
+    <div class="sechead">
+      <h2>OpenTimestamps compatibility</h2>
+      <p>Stated design target. Not yet implemented.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h3>The commitment</h3>
+        <p>Compatibility means a <code>.ots</code> receipt emitted here is consumable by standard
+          OpenTimestamps clients without Sanctum-specific software, and that digests can be
+          cross-anchored so a proof survives this service ceasing to exist. Anything less is not
+          compatibility, and calling it that would be dishonest.</p>
+      </div>
+      <div class="card">
+        <h3>Where it actually stands</h3>
+        <p>No OpenTimestamps implementation exists in the codebase today — the term appears only in
+          documentation. The native Merkle log, proofs, and composite tree-head signing are real
+          and tested. Serialising to the <code>.ots</code> format and cross-anchoring are open work
+          items, not shipped features.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="assets/inc.js"></script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
+</html>

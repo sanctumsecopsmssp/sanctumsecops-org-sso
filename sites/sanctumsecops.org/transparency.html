@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Transparency log — Sanctum Timestamp</title>
+<meta name="description" content="How the append-only Merkle log works: leaf hashing, signed tree heads, inclusion and consistency proofs, and the composite post-quantum signature scheme.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://sanctumsecops.org/transparency.html">
+<meta name="theme-color" content="#0A0814">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/brand.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:38px">
+    <p class="kicker">Log design · RFC 6962 lineage</p>
+    <h1>An append-only log<br>you can <span class="gold">audit</span> against us</h1>
+    <p class="lede" style="margin-top:16px">
+      The log is a Merkle tree over submitted digests. Its useful property is not secrecy or
+      immutability by assertion — it is that misbehaviour by the operator is detectable by anyone
+      holding two tree heads. This page describes exactly what is published and what a watcher
+      can catch.
+    </p>
+  </header>
+
+  <section>
+    <div class="sechead"><h2>Construction</h2></div>
+    <div class="tscroll"><table class="t">
+      <thead><tr><th>Element</th><th>Definition</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Leaf hash</strong></td>
+          <td><code>SHA-256(0x00 || digest)</code></td>
+          <td>The <code>0x00</code> domain-separation prefix prevents a leaf from being reinterpreted
+            as an interior node — the second-preimage attack RFC 6962 exists to close.</td></tr>
+        <tr><td><strong>Interior node</strong></td>
+          <td><code>SHA-256(0x01 || left || right)</code></td>
+          <td>Distinct prefix from leaves, so tree shape cannot be forged by substitution.</td></tr>
+        <tr><td><strong>Root</strong></td>
+          <td>Fold of all leaves at the current tree size</td>
+          <td>A single 32-byte commitment to the entire log contents and ordering.</td></tr>
+        <tr><td><strong>Signed tree head</strong></td>
+          <td><code>{tree_size, root_hash, timestamp}</code>, composite-signed</td>
+          <td>Converts a hash into an operator commitment. Publishing two different roots for the
+            same tree size is undeniable, self-incriminating evidence.</td></tr>
+        <tr><td><strong>Inclusion proof</strong></td>
+          <td>Sibling hashes from a leaf to the root</td>
+          <td>Proves one digest is in the tree, in <code>log&#8322;(n)</code> hashes, without
+            revealing or transferring the rest of the log.</td></tr>
+        <tr><td><strong>Consistency proof</strong></td>
+          <td>Proof that tree <em>n</em> is a prefix of tree <em>m</em></td>
+          <td>Proves nothing was removed, reordered, or rewritten between two tree heads. This is
+            what makes "append-only" checkable rather than promised.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="sth">
+    <div class="sechead">
+      <h2>The composite signature</h2>
+      <p>Both legs must verify. One valid leg is a verification failure, not a partial pass.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <span class="num">Classical leg</span>
+        <h3>ECDSA P-256</h3>
+        <p>Universally supported, verifiable today by any standard library, in any language, with
+          no special tooling. This leg is what lets a verifier in 2026 check a tree head using
+          software they already trust.</p>
+      </div>
+      <div class="card" style="border-color:rgba(245,208,96,.4)">
+        <span class="num" style="color:var(--gold)">Post-quantum leg</span>
+        <h3>ML-DSA-65 (FIPS 204)</h3>
+        <p>A lattice signature standardised by NIST and selected under CNSA 2.0. This leg is what
+          keeps historic tree heads meaningful after a cryptographically relevant quantum computer
+          makes the ECDSA leg forgeable.</p>
+      </div>
+    </div>
+    <div class="notice">
+      <p><b>Why timestamping specifically needs this.</b> Most protocols can rotate to
+        post-quantum algorithms and move on, because they only protect live sessions. A timestamp
+        makes a claim about the past that must still hold decades later. If tree heads were signed
+        with ECDSA alone, then the day P-256 falls, every historical proof becomes forgeable and
+        the entire log's evidentiary value evaporates retroactively. Dual-leg signing is not
+        future-proofing — for this primitive it is the product.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <h2>What a watcher can detect</h2>
+      <p>Independent monitoring is welcome and unmetered. Please break it.</p>
+    </div>
+    <div class="grid g3">
+      <div class="card lift">
+        <span class="num">Detectable</span>
+        <h3>A split view</h3>
+        <p>Two validly signed tree heads at the same tree size with different roots proves the
+          operator served different histories to different parties. Both artifacts are signed, so
+          the evidence is self-proving.</p>
+      </div>
+      <div class="card lift">
+        <span class="num">Detectable</span>
+        <h3>A rewritten history</h3>
+        <p>If a later tree head fails a consistency proof against an earlier one, entries were
+          removed or reordered. Anyone who retained an old tree head can demonstrate it.</p>
+      </div>
+      <div class="card lift">
+        <span class="num">Detectable</span>
+        <h3>A withheld entry</h3>
+        <p>A submitter holding an append acknowledgement whose digest never appears in a subsequent
+          tree can show the log accepted and then omitted it.</p>
+      </div>
+      <div class="card lift">
+        <span class="num">Detectable</span>
+        <h3>A downgraded signature</h3>
+        <p>A tree head carrying only the ECDSA leg, or a malformed ML-DSA leg, must be rejected.
+          Anti-downgrade at verification is mandatory, not advisory.</p>
+      </div>
+      <div class="card lift">
+        <span class="num">Not prevented</span>
+        <h3>A refused submission</h3>
+        <p>Availability is not a cryptographic property. The log can decline or delay a submission.
+          Cross-anchoring to an independent log is the mitigation, and it is why the free tier
+          stays OpenTimestamps-compatible.</p>
+      </div>
+      <div class="card lift">
+        <span class="num">Not claimed</span>
+        <h3>Truth of contents</h3>
+        <p>The log commits to a digest. It makes no claim that the underlying data is accurate,
+          lawful, or authorised. Attestation adds authorship, never veracity.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead"><h2>Current operational status</h2></div>
+    <div class="tscroll"><table class="t">
+      <thead><tr><th>Component</th><th>State</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Merkle tree, inclusion and consistency proofs</td>
+          <td><span class="badge ok">Implemented</span></td>
+          <td>Working implementation with a substantial test suite, operating against real
+            persistent storage.</td></tr>
+        <tr><td>Composite signed tree heads</td>
+          <td><span class="badge ok">Implemented</span></td>
+          <td>ECDSA P-256 and ML-DSA-65 generation and verification paths exist.</td></tr>
+        <tr><td>YubiKey-backed tree-head signing</td>
+          <td><span class="badge warn">Fails closed</span></td>
+          <td>Hardware signing is unavailable in the cloud deployment path. Must fail loudly rather
+            than emit unsigned tree heads — this is a release blocker.</td></tr>
+        <tr><td>RFC 3161 timestamp tokens</td>
+          <td><span class="badge warn">Not wire-compatible</span></td>
+          <td>Present as a native representation, not a conformant TSA. Do not describe it as
+            RFC 3161 externally until it interoperates.</td></tr>
+        <tr><td>OpenTimestamps receipt output</td>
+          <td><span class="badge no">Not built</span></td>
+          <td>Compatibility is the stated design target and is not yet implemented anywhere.</td></tr>
+        <tr><td>Public log endpoint on this domain</td>
+          <td><span class="badge no">Not deployed</span></td>
+          <td>This domain currently serves no origin. Deployment is the first milestone.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="notice">
+      <p><b>This table is deliberately unflattering.</b> A transparency service that misrepresents
+        its own readiness has disqualified itself. Everything marked not built is not built, and
+        the site will say so until it changes.</p>
+    </div>
+  </section>
+
+</div>
+
+<script src="assets/inc.js"></script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
+</html>

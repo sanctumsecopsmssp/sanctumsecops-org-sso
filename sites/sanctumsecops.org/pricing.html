@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pricing — Sanctum Timestamp</title>
+<meta name="description" content="Open timestamping is free and unmetered. Attested identity proofs, automation APIs, compliance retention, and sovereign log instances are priced per tier.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://sanctumsecops.org/pricing.html">
+<meta name="theme-color" content="#0A0814">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/brand.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:40px">
+    <p class="kicker">Pricing · effective 2026</p>
+    <h1>The proof is free.<br>The <span class="gold">identity</span> is the product.</h1>
+    <p class="lede" style="margin-top:18px">
+      Open timestamping stays free and unmetered, permanently and without registration. That is
+      not a loss leader gesture — an open log is only credible if anyone can use and audit it,
+      and its value grows with volume it does not bill for.
+    </p>
+    <p class="lede" style="margin-top:14px">
+      Revenue comes from the layer above: binding a verified, hardware-held identity to a
+      commitment, and from the operational surfaces organizations need around that — automation,
+      retention, auditor access, and sovereign deployment.
+    </p>
+    <div class="notice" style="margin-top:24px">
+      <p><b>Pre-launch pricing.</b> These are the published rates the service will launch on. The
+        free tier's verification tooling works today; the public log endpoint, OpenTimestamps
+        receipt output, and hardware-attested signing are <b>not yet live</b>. Paid tiers are open
+        for waitlist and design-partner conversations, not self-service purchase. Full
+        implementation status, including gaps, is on the
+        <a href="transparency.html">transparency page</a>.</p>
+    </div>
+  </header>
+
+  <!-- ================= TIERS ================= -->
+  <section>
+    <div class="sechead">
+      <h2>Tiers</h2>
+      <p>Prices are proposed list rates for launch, in USD. Annual commitments and federal
+        schedules are quoted separately.</p>
+    </div>
+
+    <div class="grid g3" style="gap:14px;align-items:stretch">
+
+      <div class="tier">
+        <div class="tag">Open</div>
+        <div class="price">$0<small> / forever</small></div>
+        <p style="margin:8px 0 0;font-size:13px">Proves <strong>when</strong>. No account required.</p>
+        <ul>
+          <li>Unlimited digest submissions</li>
+          <li>Public Merkle log inclusion</li>
+          <li>OpenTimestamps-compatible receipts <span class="badge no">planned</span></li>
+          <li>Composite-signed tree heads</li>
+          <li>Offline verification, forever</li>
+          <li>Best-effort aggregation window</li>
+          <li>No attestation, no identity binding</li>
+          <li>Community support</li>
+        </ul>
+        <a class="btn" href="stamp.html">Start stamping</a>
+      </div>
+
+      <div class="tier feature">
+        <div class="ribbon">Core product</div>
+        <div class="tag">Attested Identity</div>
+        <div class="price">$39<small> / signer / mo</small></div>
+        <p style="margin:8px 0 0;font-size:13px">Proves <strong>when + who</strong>, in hardware.</p>
+        <ul>
+          <li>Everything in Open</li>
+          <li>YubiKey PIV identity token, slot 9c <span class="badge no">planned</span></li>
+          <li>PIV attestation chain in every receipt <span class="badge no">planned</span></li>
+          <li>Verified enrollment — corporate domain, CAGE, or .org</li>
+          <li>500 attested receipts / signer / month</li>
+          <li>Priority aggregation window</li>
+          <li>Revocation and re-enrollment workflow</li>
+          <li>Named signer registry, publicly resolvable</li>
+        </ul>
+        <a class="btn gold" href="mailto:Brian@sso-labs.com?subject=Attested%20Identity%20enrollment%20waitlist">Join enrollment waitlist</a>
+      </div>
+
+      <div class="tier">
+        <div class="tag">Automation API</div>
+        <div class="price">$249<small> / mo + usage</small></div>
+        <p style="margin:8px 0 0;font-size:13px">Machine-to-machine evidence anchoring.</p>
+        <ul>
+          <li>Everything in Attested Identity</li>
+          <li>API keys with scoping and expiry</li>
+          <li>25,000 attested receipts / month included</li>
+          <li>$0.004 per receipt thereafter</li>
+          <li>Webhook delivery on tree-head publication</li>
+          <li>Batch submission endpoint</li>
+          <li>CI/CD integrations for release signing</li>
+          <li>99.5% aggregation SLA</li>
+        </ul>
+        <a class="btn" href="docs.html">Read the API docs</a>
+      </div>
+
+      <div class="tier">
+        <div class="tag">Compliance</div>
+        <div class="price">$1,850<small> / mo</small></div>
+        <p style="margin:8px 0 0;font-size:13px">Built for the audit, not just the proof.</p>
+        <ul>
+          <li>Everything in Automation API</li>
+          <li>Auditor verification portal, read-only</li>
+          <li>Evidence export packs</li>
+          <li>Control mapping — NIST SP 800-171 and CMMC 2.0 L2</li>
+          <li>7-year receipt and tree-head retention</li>
+          <li>Quarterly attestation letter</li>
+          <li>Up to 10 enrolled signers included</li>
+          <li>Named technical contact</li>
+        </ul>
+        <a class="btn" href="mailto:Brian@sso-labs.com?subject=Compliance%20tier">Request a scoping call</a>
+      </div>
+
+      <div class="tier">
+        <div class="tag">Sovereign</div>
+        <div class="price">Licensed<small> / annual</small></div>
+        <p style="margin:8px 0 0;font-size:13px">Your log, your root of trust, your boundary.</p>
+        <ul>
+          <li>Self-hosted log instance</li>
+          <li>Your own signing hierarchy and HSM or YubiKey root</li>
+          <li>Air-gapped and classified-adjacent deployment patterns</li>
+          <li>Optional cross-anchoring into the public log</li>
+          <li>CyGnScrypt policy definitions for issuance rules</li>
+          <li>Deployment runbook and rollback procedure</li>
+          <li>Source escrow available</li>
+          <li>Support retainer priced separately</li>
+        </ul>
+        <a class="btn" href="mailto:Brian@sso-labs.com?subject=Sovereign%20log%20instance">Talk to engineering</a>
+      </div>
+
+      <div class="tier">
+        <div class="tag">Federal</div>
+        <div class="price">Schedule<small> / quoted</small></div>
+        <p style="margin:8px 0 0;font-size:13px">DoD, civilian agency, and prime subcontract.</p>
+        <ul>
+          <li>CAGE-verified enrollment, mandatory</li>
+          <li>Purchasable against UEI H3A2Z4R3HE87 / CAGE 20XS3</li>
+          <li>CUI handling boundary documented</li>
+          <li>SSP and POA&amp;M artifacts on request</li>
+          <li>CNSA 2.0 algorithm posture statement</li>
+          <li>Teaming and subcontract friendly</li>
+          <li>Section 508 accessibility conformance</li>
+          <li>Prime or sub, either direction</li>
+        </ul>
+        <a class="btn" href="mailto:Brian@sso-labs.com?subject=Federal%20schedule%20inquiry">Request capability statement</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= ONE-TIME ================= -->
+  <section>
+    <div class="sechead">
+      <h2>One-time and add-on charges</h2>
+      <p>Hardware and professional services are billed outside the subscription.</p>
+    </div>
+    <div class="tscroll"><table class="t">
+      <thead><tr><th>Item</th><th>Charge</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Identity token provisioning</strong></td><td>$145 per token</td>
+          <td>YubiKey 5 series, keys generated on-token, PIV slot configured, attestation chain
+            recorded, shipped enrolled. Non-exportable by construction.</td></tr>
+        <tr><td><strong>Enrollment identity verification</strong></td><td>$0 – $250</td>
+          <td>Free for corporate-domain and .org verification. Charged where CAGE cross-check or
+            manual documentary review is required.</td></tr>
+        <tr><td><strong>Token replacement</strong></td><td>$145 + $95</td>
+          <td>Hardware plus revocation and re-enrollment handling. Lost-token revocation itself
+            is never charged — never make revocation expensive.</td></tr>
+        <tr><td><strong>Historical backfill</strong></td><td>$0.02 per record</td>
+          <td>Bulk anchoring of an existing archive, submitted as digests. Minimum 10,000 records.</td></tr>
+        <tr><td><strong>Auditor seat</strong></td><td>$0</td>
+          <td>Verification access is free. Charging an auditor to check a proof would undermine
+            the proof.</td></tr>
+        <tr><td><strong>Integration engineering</strong></td><td>$225 / hr</td>
+          <td>Or fixed-scope statement of work. Delivered by the operating entity.</td></tr>
+        <tr><td><strong>Expert declaration</strong></td><td>Quoted</td>
+          <td>Written or testimonial explanation of a receipt's cryptographic meaning for
+            proceedings or audit escalation.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ================= MODEL RATIONALE ================= -->
+  <section>
+    <div class="sechead">
+      <h2>Why the model is shaped this way</h2>
+      <p>The pricing follows from the trust properties, not from what the market tolerates.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <span class="num">Free tier</span>
+        <h3>The open log must be free to be credible</h3>
+        <p>A transparency log's value is a function of how many independent parties use and watch
+          it. Metering submissions would suppress exactly the volume that makes the log worth
+          trusting, and would invite the reasonable objection that the operator can price people
+          out of auditing it. Free also removes the account requirement, which removes us as a
+          gatekeeper.</p>
+      </div>
+      <div class="card">
+        <span class="num">Per signer, not per proof</span>
+        <h3>Identity is a standing relationship</h3>
+        <p>The costly, defensible work is verifying an organization, provisioning non-exportable
+          hardware, and maintaining a revocable registry. That cost is per identity and recurs
+          annually, so the price is per signer. Metering attested receipts on top of that would
+          discourage the thorough evidence practice the product exists to enable.</p>
+      </div>
+      <div class="card">
+        <span class="num">Verification is never billed</span>
+        <h3>Charging the verifier breaks the primitive</h3>
+        <p>If a verifier must pay us to check a proof, the proof depends on us — which is the
+          exact property the service claims to eliminate. Auditor seats, the verification portal,
+          and offline verification are free at every tier, permanently.</p>
+      </div>
+      <div class="card">
+        <span class="num">Compliance premium</span>
+        <h3>You are buying the audit outcome</h3>
+        <p>The Compliance tier's cost is not cryptography. It is retention obligation, control
+          mapping, export tooling, and a named human who will answer an assessor's questions.
+          That is what the price reflects, and it is priced against the cost of failing an
+          assessment, not against the cost of a hash.</p>
+      </div>
+      <div class="card">
+        <span class="num">Sovereign licensing</span>
+        <h3>Some buyers cannot use a shared log</h3>
+        <p>Classified-adjacent and sovereignty-constrained programs cannot submit digests to an
+          externally operated service, however content-blind. Licensing the instance captures that
+          demand without weakening the public log, and cross-anchoring keeps the two compatible.</p>
+      </div>
+      <div class="card">
+        <span class="num">Federal track</span>
+        <h3>CAGE verification is the differentiator</h3>
+        <p>Mapping a signer to a registered entity via CAGE is a control almost no commercial
+          timestamping service offers. It is also the requirement that makes the proof usable in
+          a procurement or contract-dispute context, which is where the budget lives.</p>
+      </div>
+    </div>
+
+    <div class="notice">
+      <p><b>Status.</b> These are proposed launch rates pending a build-out decision. The open log
+        and receipt format are the priority; attested enrollment follows once token provisioning
+        and the revocation workflow are operational. Nothing on this page should be read as a
+        commitment to a delivery date.</p>
+    </div>
+  </section>
+
+</div>
+
+<script src="assets/inc.js"></script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
+</html>

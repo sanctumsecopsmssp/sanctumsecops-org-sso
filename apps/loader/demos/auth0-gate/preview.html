@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta charset="utf-8" />
+    <title>Sanctum — Secure Access</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <style>
+      :root {
+        --bg: #0A0814;
+        --bg-1: #100c1d;
+        --bg-2: #15102a;
+        --surface: rgba(24, 18, 48, 0.55);
+        --surface-2: rgba(20, 15, 40, 0.72);
+        --violet: #7C3AED;
+        --violet-soft: #A78BFA;
+        --violet-deep: #5B21B6;
+        --gold: #F5D060;
+        --gold-deep: #D4A017;
+        --ink: #F0EBFF;
+        --dim: #A09BB8;
+        --faint: #6E6985;
+        --track: rgba(167, 139, 250, 0.14);
+        --line: rgba(167, 139, 250, 0.20);
+        --pass: #22C55E;
+        --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        --sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --serif: "Cormorant Garamond", Georgia, serif;
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-in: cubic-bezier(0.4, 0, 1, 1);
+        --ease-io: cubic-bezier(0.4, 0, 0.2, 1);
+        --t-interactive: 180ms var(--ease);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        overflow-x: hidden;
+      }
+
+      body {
+        background-image:
+          radial-gradient(ellipse 72% 52% at 50% -8%, rgba(124, 58, 237, 0.30) 0%, rgba(10, 8, 20, 0) 64%),
+          radial-gradient(ellipse 60% 44% at 50% 108%, rgba(167, 139, 250, 0.10) 0%, rgba(10, 8, 20, 0) 70%),
+          linear-gradient(180deg, #0A0814 0%, #0c0818 100%);
+        background-attachment: fixed;
+      }
+
+      /* Procedural background canvas — pure procedural, no image draw, no readback */
+      #bg {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        opacity: 0.0;
+        transition: opacity 900ms var(--ease);
+        pointer-events: none;
+      }
+      #bg.ready { opacity: 1; }
+
+      /* Server aperture — slow rotating conic iris behind the sigil */
+      .aperture {
+        position: fixed;
+        z-index: 0;
+        left: 50%;
+        top: 50%;
+        width: min(92vmin, 760px);
+        height: min(92vmin, 760px);
+        transform: translate(-50%, -52%);
+        border-radius: 50%;
+        background:
+          conic-gradient(from 0deg, rgba(124,58,237,0) 0deg, rgba(124,58,237,0.10) 40deg, rgba(245,208,96,0.06) 80deg, rgba(124,58,237,0) 160deg, rgba(167,139,250,0.08) 220deg, rgba(124,58,237,0) 360deg);
+        -webkit-mask: radial-gradient(circle, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0) 62%);
+        mask: radial-gradient(circle, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0) 62%);
+        animation: aperture-spin 38s linear infinite;
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      @keyframes aperture-spin { to { transform: translate(-50%, -52%) rotate(360deg); } }
+
+      .stage {
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: grid;
+        grid-template-rows: 1fr auto;
+        align-items: center;
+        justify-items: center;
+        padding: 44px 20px 26px;
+        row-gap: 26px;
+      }
+
+      .core {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 448px;
+      }
+
+      /* ---- sigil: ring + padlock ---- */
+      .sigil {
+        position: relative;
+        width: 148px;
+        height: 148px;
+        perspective: 900px;
+      }
+      .sigil .ring { position: absolute; inset: 0; }
+      .sigil svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+      .seg {
+        fill: none;
+        stroke: var(--track);
+        stroke-width: 2.6;
+        stroke-linecap: round;
+        stroke-dasharray: 0 100;
+        transition: stroke-dasharray 420ms var(--ease), stroke 360ms linear;
+      }
+      .seg.lit { stroke: var(--violet-soft); stroke-dasharray: 15.4 100; }
+      .seg.done { stroke: var(--violet-soft); stroke-dasharray: 15.4 100; opacity: 0.92; }
+      .seg.cold { stroke: var(--track); stroke-dasharray: 0 100; }
+
+      .halo {
+        fill: none;
+        stroke: var(--gold);
+        stroke-width: 1;
+        opacity: 0;
+        transition: opacity 560ms var(--ease);
+      }
+      .sigil.unlocked .halo { opacity: 0.9; }
+
+      .lock {
+        position: absolute;
+        inset: 0;
+        transform-style: preserve-3d;
+        transform: rotateX(8deg);
+      }
+      .body { fill: none; stroke: var(--violet-soft); stroke-width: 2.4; stroke-linejoin: round; transition: stroke 420ms linear; }
+      .sigil.unlocked .body { stroke: var(--gold); }
+      .shackle {
+        fill: none;
+        stroke: var(--violet-soft);
+        stroke-width: 2.4;
+        stroke-linecap: round;
+        transform-origin: 62px 50px;
+        transition: transform 680ms var(--ease), stroke 420ms linear;
+      }
+      .sigil.unlocked .shackle { transform: translateY(-9px) rotate(-26deg); stroke: var(--gold); }
+      .keyhole { fill: var(--violet-soft); opacity: 0.82; transition: fill 420ms linear; }
+      .sigil.unlocked .keyhole { fill: var(--gold); }
+
+      .sigil-glow {
+        position: absolute;
+        inset: -18%;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(124,58,237,0.34) 0%, rgba(10,8,20,0) 62%);
+        opacity: 0.4;
+        transition: opacity 620ms var(--ease);
+        pointer-events: none;
+      }
+      .sigil.unlocked .sigil-glow { opacity: 0.85; background: radial-gradient(circle, rgba(245,208,96,0.30) 0%, rgba(10,8,20,0) 64%); }
+
+      /* ---- wordmark / authority ---- */
+      .wordmark {
+        margin: 18px 0 0;
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: 30px;
+        letter-spacing: 0.42em;
+        text-transform: uppercase;
+        text-indent: 0.42em;
+        color: var(--ink);
+        transition: letter-spacing 720ms var(--ease), color 480ms linear;
+      }
+      .unlocked-text .wordmark { letter-spacing: 0.28em; text-indent: 0.28em; color: var(--gold); }
+      .authority {
+        margin: 9px 0 0;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--dim);
+        text-align: center;
+      }
+      .statusline {
+        margin: 20px 0 0;
+        height: 18px;
+        font-family: var(--mono);
+        font-size: 11.5px;
+        letter-spacing: 0.05em;
+        color: var(--dim);
+        text-align: center;
+        transition: opacity 180ms linear;
+      }
+      .statusline.fading { opacity: 0; }
+      .counter {
+        margin: 6px 0 0;
+        font-family: var(--mono);
+        font-size: 9.5px;
+        letter-spacing: 0.24em;
+        color: var(--violet-soft);
+        opacity: 0.7;
+      }
+
+      /* ---- telemetry stream ---- */
+      .telemetry {
+        list-style: none;
+        margin: 14px 0 0;
+        padding: 0;
+        width: 100%;
+        max-width: 380px;
+        display: grid;
+        gap: 3px;
+      }
+      .telemetry li {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.02em;
+        color: var(--faint);
+        opacity: 0;
+        transform: translateX(-6px);
+        transition: opacity 360ms var(--ease), transform 360ms var(--ease), color 360ms linear;
+        display: flex;
+        gap: 9px;
+        align-items: baseline;
+      }
+      .telemetry li .dot {
+        flex: 0 0 auto;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--track);
+        transform: translateY(1px);
+        transition: background 360ms linear, box-shadow 360ms linear;
+      }
+      .telemetry li.stream { opacity: 1; transform: none; }
+      .telemetry li.done { color: var(--dim); }
+      .telemetry li.done .dot { background: var(--violet-soft); box-shadow: 0 0 8px rgba(167,139,250,0.6); }
+
+      /* ---- gate: glass, folds in only on unlock ---- */
+      .gate {
+        width: 100%;
+        max-width: 404px;
+        margin-top: 16px;
+        padding: 7px;
+        border: 1px solid var(--line);
+        border-top: 2px solid var(--gold-deep);
+        border-radius: 16px;
+        background: var(--surface);
+        -webkit-backdrop-filter: blur(20px) saturate(1.25);
+        backdrop-filter: blur(20px) saturate(1.25);
+        box-shadow:
+          0 28px 70px rgba(7, 4, 18, 0.62),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        opacity: 0;
+        transform: perspective(1200px) rotateX(6deg) translateY(18px) scale(0.985);
+        clip-path: inset(0 0 14% 0 round 16px);
+        pointer-events: none;
+        transition:
+          opacity 520ms var(--ease),
+          transform 620ms var(--ease),
+          clip-path 620ms var(--ease),
+          filter 460ms linear;
+      }
+      .gate.open {
+        opacity: 1;
+        transform: perspective(1200px) rotateX(0) translateY(0) scale(1);
+        clip-path: inset(0 0 0 0 round 16px);
+        pointer-events: auto;
+      }
+      .gate.sealed {
+        opacity: 0.12;
+        filter: grayscale(1) blur(2px);
+        pointer-events: none;
+      }
+      .gate :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+
+      /* Safe, scoped descendants of the Auth0 widget — never global input/button */
+      .gate :where(input, button, a, label) { font-family: var(--sans); }
+      .gate input {
+        background: rgba(10, 8, 20, 0.5);
+        border: 1px solid var(--line);
+        color: var(--ink);
+        border-radius: 10px;
+      }
+      .gate input::placeholder { color: var(--faint); }
+      .gate input:focus-visible { border-color: var(--violet-soft); box-shadow: 0 0 0 3px rgba(124,58,237,0.25); }
+      .gate button {
+        border-radius: 10px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+      .gate a { color: var(--violet-soft); }
+      .gate a:hover { color: var(--gold); }
+
+      
+      /* ---- mock widget (QA preview only) ---- */
+      .auth0-mock { display: grid; gap: 10px; padding: 8px 10px 12px; }
+      .mk-head { display: flex; align-items: center; gap: 10px; }
+      .mk-seal { color: var(--gold); display: inline-flex; }
+      .mk-head strong { display: block; font-family: var(--serif); font-size: 17px; color: var(--ink); letter-spacing: 0.02em; }
+      .mk-head small { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+      .mk-field { display: grid; gap: 4px; }
+      .mk-field span { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+      .mk-field input { width: 100%; padding: 9px 11px; font-size: 13px; }
+      .mk-submit { width: 100%; padding: 10px 12px; border: none; border-radius: 10px; background: linear-gradient(180deg, var(--gold) 0%, var(--gold-deep) 100%); color: #0A0814; font-weight: 700; font-size: 13px; letter-spacing: 0.02em; cursor: pointer; transition: transform var(--t-interactive), box-shadow var(--t-interactive); box-shadow: 0 8px 24px rgba(245,208,96,0.22); }
+      .mk-submit:hover { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(245,208,96,0.30); }
+      .mk-submit:active { transform: translateY(0); }
+      .mk-divider { display: flex; align-items: center; gap: 12px; color: var(--faint); font-family: var(--mono); font-size: 10px; }
+      .mk-divider::before, .mk-divider::after { content: ""; height: 1px; flex: 1; background: var(--line); }
+      .mk-social { display: flex; gap: 10px; }
+      .mk-soc { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 8px; border: 1px solid var(--line); border-radius: 10px; background: rgba(10,8,20,0.4); color: var(--dim); font-size: 12px; cursor: pointer; transition: color var(--t-interactive), border-color var(--t-interactive); }
+      .mk-soc:hover { color: var(--ink); border-color: rgba(167,139,250,0.4); }
+      .mk-forgot { text-align: center; font-size: 11px; }
+      /* ---- trust-stack chips ---- */
+      .chips {
+        list-style: none;
+        margin: 16px 0 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 520ms var(--ease), transform 520ms var(--ease);
+      }
+      .chips.show { opacity: 1; transform: none; }
+      .chips li {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(16, 12, 29, 0.55);
+        font-family: var(--mono);
+        font-size: 9.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--faint);
+        transition: color 360ms linear, border-color 360ms linear;
+      }
+      .chips li i {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--track);
+        transition: background 360ms linear, box-shadow 360ms linear;
+        font-style: normal;
+      }
+      .chips li.lit { color: var(--dim); border-color: rgba(167,139,250,0.32); }
+      .chips li.lit i { background: var(--violet-soft); box-shadow: 0 0 8px rgba(167,139,250,0.55); }
+      .chips li.done { color: var(--gold); border-color: rgba(245,208,96,0.30); }
+      .chips li.done i { background: var(--gold); box-shadow: 0 0 9px rgba(245,208,96,0.55); }
+
+      .sealmsg {
+        display: none;
+        margin-top: 18px;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+      .sealmsg.on { display: block; }
+
+      /* ---- footer rail ---- */
+      .rail {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 580px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        opacity: 0;
+        transition: opacity 520ms var(--ease);
+      }
+      .rail.show { opacity: 1; }
+      .rail summary {
+        list-style: none;
+        cursor: pointer;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--violet-soft);
+      }
+      .rail summary::-webkit-details-marker { display: none; }
+      .rail summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+      .paths {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        justify-content: center;
+        margin-top: 12px;
+        font-family: var(--mono);
+        font-size: 10.5px;
+      }
+      .paths a {
+        color: var(--dim);
+        text-decoration: none;
+        border-bottom: 1px dotted rgba(160, 155, 184, 0.4);
+        transition: color var(--t-interactive), border-color var(--t-interactive);
+      }
+      .paths a:hover, .paths a:focus-visible { color: var(--gold); border-bottom-color: var(--gold); }
+      .legal {
+        font-family: var(--mono);
+        font-size: 9.5px;
+        line-height: 1.9;
+        color: var(--dim);
+        text-align: center;
+        opacity: 0.78;
+      }
+
+      .sr {
+        position: absolute;
+        width: 1px; height: 1px;
+        padding: 0; margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      /* Reduced motion: skip the choreography, arm the gate immediately */
+      @media (prefers-reduced-motion: reduce) {
+        .seg, .shackle, .gate, .wordmark, .rail, .chips, .statusline, .halo, .telemetry li, .sigil-glow, .aperture {
+          transition: none !important;
+          animation: none !important;
+        }
+        .aperture { display: none; }
+      }
+
+      @media (max-width: 420px) {
+        .sigil { width: 132px; height: 132px; }
+        .wordmark { font-size: 24px; }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="bg" aria-hidden="true"></canvas>
+    <div class="aperture" aria-hidden="true"></div>
+
+    <main class="stage">
+      <section class="core" id="core">
+        <div class="sigil" id="sigil" aria-hidden="true">
+          <div class="sigil-glow"></div>
+          <svg class="ring" viewBox="0 0 124 124" focusable="false" aria-hidden="true">
+            <circle class="halo" cx="62" cy="62" r="57" />
+            <g id="segs" transform="rotate(-90 62 62)">
+              <circle class="seg" cx="62" cy="62" r="50" pathLength="100" transform="rotate(0 62 62)" />
+              <circle class="seg" cx="62" cy="62" r="50" pathLength="100" transform="rotate(60 62 62)" />
+              <circle class="seg" cx="62" cy="62" r="50" pathLength="100" transform="rotate(120 62 62)" />
+              <circle class="seg" cx="62" cy="62" r="50" pathLength="100" transform="rotate(180 62 62)" />
+              <circle class="seg" cx="62" cy="62" r="50" pathLength="100" transform="rotate(240 62 62)" />
+              <circle class="seg" cx="62" cy="62" r="50" pathLength="100" transform="rotate(300 62 62)" />
+            </g>
+          </svg>
+          <svg class="lock" viewBox="0 0 124 124" focusable="false" aria-hidden="true">
+            <path class="shackle" d="M50 52 V44 a12 12 0 0 1 24 0 V52" />
+            <rect class="body" x="44" y="52" width="36" height="30" rx="6" />
+            <circle class="keyhole" cx="62" cy="64" r="3.1" />
+            <rect class="keyhole" x="60.7" y="66" width="2.6" height="8" rx="1.3" />
+          </svg>
+        </div>
+
+        <h1 class="wordmark" id="wordmark">Sanctum</h1>
+        <p class="authority">Secure Access &middot; Cloud PKI Authority</p>
+        <p class="statusline" id="statusline">Initializing secure channel</p>
+        <p class="counter" id="counter">Stage 0 / 6</p>
+        <p class="sr" id="live" role="status" aria-live="polite"></p>
+
+        <ul class="telemetry" id="telemetry" aria-hidden="true"></ul>
+
+        <div class="gate" id="gate">
+          <div class="auth0-mock" role="form" aria-label="Sign in">
+  <div class="mk-head">
+    <span class="mk-seal" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M12 2 3 6v6c0 5 3.5 8 9 10 5.5-2 9-5 9-10V6z"/>
+        <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <div>
+      <strong>Operator sign in</strong>
+      <small>Authorized access only</small>
+    </div>
+  </div>
+  <label class="mk-field"><span>Email</span>
+    <input type="email" autocomplete="username" placeholder="operator@sanctumsecops.com" value="" />
+  </label>
+  <label class="mk-field"><span>Password</span>
+    <input type="password" autocomplete="current-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" />
+  </label>
+  <button class="mk-submit" type="button">Continue</button>
+  <div class="mk-divider"><span>or</span></div>
+  <div class="mk-social">
+    <button type="button" class="mk-soc"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 .1.8 2.5 3.1 1.8.1-.7.4-1.2.7-1.5-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C18.3 4.6 19.3 4.9 19.3 4.9c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg> GitHub</button>
+    <button type="button" class="mk-soc"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="11" width="6" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0" stroke-linecap="round"/><circle cx="8" cy="16" r="1" fill="currentColor" stroke="none"/></svg> Passkey</button>
+  </div>
+  <a class="mk-forgot" href="#">Forgot password?</a>
+</div>
+        </div>
+
+        <ul class="chips" id="chips" aria-hidden="true">
+          <li data-key="cloudflare">Cloudflare <i></i></li>
+          <li data-key="auth0">Auth0 <i></i></li>
+          <li data-key="supabase">Supabase <i></i></li>
+          <li data-key="neon">Neon <i></i></li>
+          <li data-key="github">GitHub <i></i></li>
+        </ul>
+
+        <p class="sealmsg" id="sealmsg">Session sealed</p>
+      </section>
+
+      <details class="rail" id="rail">
+        <summary>Public trust &amp; policy</summary>
+        <div class="paths">
+          <a href="https://pki.sanctumsecops.com">PKI Authority</a>
+          <a href="https://pki.sanctumsecops.com/crl">CRL</a>
+          <a href="https://arena.sanctumsecops.com">Validation Arena</a>
+          <a href="https://www.sanctumsecops.com/services">Services</a>
+          <a href="https://www.sanctumsecops.com/about">About</a>
+          <a href="https://www.sanctumsecops.com/contact">Privacy &amp; Contact</a>
+        </div>
+        <p class="legal">
+          Sanctum SecOps LLC &middot; FIPS 140-3 baseline &middot; TLS 1.3 only<br />
+          Authorized operators only. Access events are governed at the edge.
+        </p>
+      </details>
+    </main>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var STAGES = [
+          { text: "Cloudflare edge route prepared", chip: "cloudflare" },
+          { text: "Auth0 challenge mounted", chip: "auth0" },
+          { text: "Zero Trust policy context loaded", chip: "cloudflare" },
+          { text: "FIPS baseline context loaded", chip: null },
+          { text: "Data plane standby — Supabase / Neon", chip: "supabase,neon" },
+          { text: "GitHub source attestation referenced", chip: "github" }
+        ];
+        var UNSEAL = [
+          "Provider context torn down",
+          "Zero Trust session revoked",
+          "Assertion discarded",
+          "Policy context released",
+          "Edge route withdrawn",
+          "Connection sealed"
+        ];
+
+        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var STEP = reduce ? 0 : 460;
+        var segs = Array.prototype.slice.call(document.querySelectorAll(".seg"));
+        var sigil = document.getElementById("sigil");
+        var core = document.getElementById("core");
+        var status = document.getElementById("statusline");
+        var counter = document.getElementById("counter");
+        var live = document.getElementById("live");
+        var gate = document.getElementById("gate");
+        var rail = document.getElementById("rail");
+        var chips = document.getElementById("chips");
+        var sealmsg = document.getElementById("sealmsg");
+        var telemetry = document.getElementById("telemetry");
+        var sealing = false;
+
+        /* Build telemetry rows once */
+        STAGES.forEach(function (s, i) {
+          var li = document.createElement("li");
+          var dot = document.createElement("span");
+          dot.className = "dot";
+          li.appendChild(dot);
+          li.appendChild(document.createTextNode(s.text));
+          telemetry.appendChild(li);
+        });
+        var telRows = Array.prototype.slice.call(telemetry.children);
+
+        function setChip(key, state) {
+          if (!key) return;
+          key.split(",").forEach(function (k) {
+            var el = chips.querySelector('li[data-key="' + k.trim() + '"]');
+            if (!el) return;
+            el.classList.remove("lit", "done");
+            if (state) el.classList.add(state);
+          });
+        }
+
+        function say(text, idx, total) {
+          status.classList.add("fading");
+          window.setTimeout(function () {
+            status.textContent = text;
+            status.classList.remove("fading");
+          }, reduce ? 0 : 150);
+          counter.textContent = "Stage " + idx + " / " + total;
+          live.textContent = text;
+        }
+
+        function forward(i) {
+          if (i >= segs.length) {
+            sigil.classList.add("unlocked");
+            core.classList.add("unlocked-text");
+            say("Identity prompt armed — enter credentials", segs.length, segs.length);
+            window.setTimeout(function () {
+              gate.classList.add("open");
+              chips.classList.add("show");
+              rail.classList.add("show");
+              var first = gate.querySelector("input, button, a");
+              if (first && !reduce) { try { first.focus({ preventScroll: true }); } catch (e) {} }
+              arm();
+            }, reduce ? 0 : 360);
+            return;
+          }
+          segs[i].classList.remove("cold");
+          segs[i].classList.add("lit");
+          telRows[i].classList.add("stream");
+          say(STAGES[i].text, i + 1, segs.length);
+          setChip(STAGES[i].chip, "lit");
+          window.setTimeout(function () {
+            segs[i].classList.remove("lit");
+            segs[i].classList.add("done");
+            telRows[i].classList.remove("stream");
+            telRows[i].classList.add("done");
+            setChip(STAGES[i].chip, "done");
+            forward(i + 1);
+          }, STEP);
+        }
+
+        function reverse(i, done) {
+          if (i < 0) { done(); return; }
+          segs[i].classList.remove("done");
+          segs[i].classList.add("cold");
+          telRows[i].classList.remove("done", "stream");
+          say(UNSEAL[segs.length - 1 - i], i, segs.length);
+          window.setTimeout(function () { reverse(i - 1, done); }, STEP);
+        }
+
+        /* Idle seal — UX timer only; no storage/auth semantics touched */
+        var IDLE = 15 * 60 * 1000;
+        var WARN = 60 * 1000;
+        var idleT = null;
+        var warnT = null;
+
+        function clearT() {
+          if (idleT) { window.clearTimeout(idleT); idleT = null; }
+          if (warnT) { window.clearTimeout(warnT); warnT = null; }
+        }
+
+        function seal() {
+          if (sealing) { return; }
+          sealing = true;
+          clearT();
+          gate.classList.remove("open");
+          gate.classList.add("sealed");
+          sigil.classList.remove("unlocked");
+          core.classList.remove("unlocked-text");
+          chips.classList.remove("show");
+          reverse(segs.length - 1, function () {
+            say("Sealed — reload to re-enter the sequence", 0, segs.length);
+            sealmsg.classList.add("on");
+          });
+        }
+
+        function warn() {
+          say("Idle — sealing in 60 seconds", segs.length, segs.length);
+          warnT = window.setTimeout(seal, WARN);
+        }
+
+        function arm() {
+          clearT();
+          idleT = window.setTimeout(warn, IDLE - WARN);
+        }
+
+        function bump() {
+          if (sealing || !gate.classList.contains("open")) { return; }
+          if (warnT) {
+            window.clearTimeout(warnT);
+            warnT = null;
+            say("Identity prompt armed — enter credentials", segs.length, segs.length);
+          }
+          arm();
+        }
+
+        ["mousedown", "keydown", "touchstart", "wheel", "focusin"].forEach(function (ev) {
+          window.addEventListener(ev, bump, { passive: true });
+        });
+        document.addEventListener("visibilitychange", function () {
+          if (document.visibilityState === "visible") { bump(); }
+        });
+
+        /* Procedural particle-orbit background — pure procedural, no image draw.
+           Wrapped defensively; if canvas unsupported the CSS gradient remains. */
+        (function initBg() {
+          if (reduce) return;
+          var c = document.getElementById("bg");
+          if (!c || !c.getContext) return;
+          var ctx, w, h, raf, t = 0, ok = true;
+          try { ctx = c.getContext("2d"); } catch (e) { return; }
+          var particles = [];
+          var N = 64;
+
+          function resize() {
+            w = c.width = window.innerWidth;
+            h = c.height = window.innerHeight;
+          }
+          function build() {
+            particles = [];
+            for (var i = 0; i < N; i++) {
+              var a = (i / N) * Math.PI * 2;
+              var rad = 120 + Math.random() * 360;
+              particles.push({
+                a: a,
+                r: rad,
+                s: 0.0006 + Math.random() * 0.0012,
+                sz: 0.6 + Math.random() * 1.4,
+                gold: Math.random() < 0.12
+              });
+            }
+          }
+          function draw() {
+            if (!ok) return;
+            ctx.clearRect(0, 0, w, h);
+            var cx = w / 2, cy = h * 0.46;
+            for (var i = 0; i < particles.length; i++) {
+              var p = particles[i];
+              p.a += p.s;
+              var x = cx + Math.cos(p.a) * p.r;
+              var y = cy + Math.sin(p.a) * p.r * 0.62;
+              ctx.beginPath();
+              ctx.fillStyle = p.gold
+                ? "rgba(245,208,96,0.55)"
+                : "rgba(167,139,250,0.45)";
+              ctx.arc(x, y, p.sz, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            t += 1;
+            raf = window.requestAnimationFrame(draw);
+          }
+          try {
+            resize();
+            build();
+            window.addEventListener("resize", function () { resize(); build(); });
+            c.classList.add("ready");
+            raf = window.requestAnimationFrame(draw);
+          } catch (e) { ok = false; if (raf) cancelAnimationFrame(raf); }
+        })();
+
+        /* Reduced motion: reveal the gate immediately so the widget is usable. */
+        if (reduce) {
+          STAGES.forEach(function (s, i) {
+            segs[i].classList.add("done");
+            telRows[i].classList.add("done");
+            setChip(s.chip, "done");
+          });
+          sigil.classList.add("unlocked");
+          core.classList.add("unlocked-text");
+          gate.classList.add("open");
+          chips.classList.add("show");
+          rail.classList.add("show");
+          arm();
+          say("Identity prompt armed — enter credentials", segs.length, segs.length);
+        } else {
+          forward(0);
+        }
+      })();
+    </script>
+  <script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
+</html>

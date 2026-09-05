@@ -1,0 +1,225 @@
+/* ============================================================
+   Sanctum SecOps — brand system
+   Tokens lifted verbatim from the Loader Control Panel so every
+   surface in the estate renders identically.
+   ============================================================ */
+
+:root{
+  --midnight:#0A0814; --surface:#120E20; --surface-2:#181231;
+  --violet:#7C3AED; --violet-lt:#A78BFA;
+  --gold:#F5D060; --gold-dk:#D4A017;
+  --ink:#EDE9FB; --muted:#9C93BC; --line:rgba(167,139,250,.18);
+  --pass:#22C55E; --fail:#F87171;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --ui:Manrope,system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0;background:var(--midnight);color:var(--ink);
+  font-family:var(--ui);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(60% 45% at 50% -10%,rgba(124,58,237,.20),transparent 70%),
+             radial-gradient(40% 30% at 90% 100%,rgba(212,160,23,.08),transparent 70%)}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* ---------- type ---------- */
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;margin:0}
+h1{font-size:clamp(30px,5vw,52px);line-height:1.08}
+h2{font-size:clamp(23px,2.7vw,30px);line-height:1.15}
+h3{font-size:19px}
+.gold{color:var(--gold)}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--violet-lt);margin:0 0 12px}
+.lede{color:var(--muted);max-width:66ch;font-size:15.5px;line-height:1.7}
+p{line-height:1.7;color:var(--muted);font-size:14.5px}
+code,kbd{font-family:var(--mono);font-size:.9em;color:var(--violet-lt)}
+a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(245,208,96,.28)}
+a:hover{border-bottom-color:var(--gold)}
+strong{color:var(--ink);font-weight:600}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);
+  background:rgba(10,8,20,.82);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:26px;padding:14px 24px}
+.brand{display:flex;align-items:center;gap:11px;border:0}
+.brand svg{width:28px;height:31px;flex:0 0 auto}
+.brand span{font-family:var(--display);font-size:19px;font-weight:600;color:var(--ink);white-space:nowrap}
+.brand span i{color:var(--gold);font-style:normal}
+.nav nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.nav nav a{font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--muted);padding:8px 11px;border-radius:7px;border:0}
+.nav nav a:hover{color:var(--gold);background:rgba(24,18,49,.8)}
+.nav nav a[aria-current]{color:var(--gold);background:rgba(245,208,96,.09)}
+
+/* ---------- layout ---------- */
+section{padding:60px 0}
+.hero{padding:82px 0 56px;border-bottom:1px solid var(--line)}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);
+  border-radius:999px;padding:6px 14px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  background:rgba(24,18,49,.6);margin-bottom:22px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--pass);
+  box-shadow:0 0 0 3px rgba(34,197,94,.16)}
+.sechead{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:30px}
+.sechead p{margin:8px 0 0;font-size:14px}
+
+/* ---------- chips ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:7px 14px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);background:rgba(24,18,49,.6)}
+.chip b{color:var(--gold);font-weight:500}
+
+/* ---------- cards ---------- */
+.grid{display:grid;gap:12px}
+/* Grid and flex children default to min-width:auto, which lets a wide <pre>
+   or a nowrap table stretch the track and push the whole page sideways. */
+.grid>*{min-width:0}
+.card,.tier,.console{min-width:0;max-width:100%}
+.g2{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.card{border:1px solid var(--line);border-radius:13px;padding:22px;
+  background:linear-gradient(180deg,var(--surface-2),var(--surface));
+  transition:border-color .18s,transform .18s,box-shadow .18s}
+.card.lift:hover{border-color:rgba(245,208,96,.5);transform:translateY(-2px);
+  box-shadow:0 12px 30px rgba(0,0,0,.45)}
+.card h3{margin-bottom:9px}
+.card p{margin:0;font-size:13.5px}
+.card .num{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+  color:var(--violet-lt);text-transform:uppercase;display:block;margin-bottom:11px}
+
+/* ---------- buttons ---------- */
+.btn{appearance:none;cursor:pointer;display:inline-block;border-radius:9px;
+  padding:12px 20px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;border:1px solid var(--line);
+  background:rgba(24,18,49,.7);color:var(--ink);transition:.18s}
+.btn:hover{border-color:rgba(245,208,96,.55);color:var(--gold)}
+.btn.gold{border-color:var(--gold);background:var(--gold);color:var(--midnight);font-weight:600}
+.btn.gold:hover{background:var(--gold-dk);border-color:var(--gold-dk);color:var(--midnight)}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btnrow{display:flex;flex-wrap:wrap;gap:11px;margin-top:30px}
+
+/* ---------- tables ---------- */
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{font-family:var(--mono);font-size:10px;letter-spacing:.17em;
+  text-transform:uppercase;color:var(--violet-lt);text-align:left;
+  padding:11px 13px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.t td{padding:13px;border-bottom:1px solid rgba(167,139,250,.09);
+  color:var(--muted);vertical-align:top}
+table.t tr:hover td{background:rgba(24,18,49,.4)}
+table.t td strong{color:var(--ink)}
+
+/* ---------- tiers ---------- */
+.tier{position:relative;display:flex;flex-direction:column;border:1px solid var(--line);
+  border-radius:14px;padding:26px;background:linear-gradient(180deg,var(--surface-2),var(--surface))}
+.tier.feature{border-color:rgba(245,208,96,.45);
+  box-shadow:0 0 0 1px rgba(245,208,96,.12),0 16px 40px rgba(0,0,0,.4)}
+.tier .tag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--violet-lt);margin-bottom:12px}
+.tier.feature .tag{color:var(--gold)}
+.tier .price{font-family:var(--display);font-size:36px;font-weight:600;
+  color:var(--ink);line-height:1;margin:6px 0 4px}
+.tier .price small{font-family:var(--mono);font-size:11px;color:var(--muted);
+  letter-spacing:.1em;font-weight:400}
+.tier ul{list-style:none;margin:20px 0 0;padding:0;flex:1}
+.tier li{position:relative;padding:7px 0 7px 22px;font-size:13.2px;
+  color:var(--muted);line-height:1.55;border-bottom:1px solid rgba(167,139,250,.07)}
+.tier li::before{content:"";position:absolute;left:0;top:15px;width:9px;height:9px;
+  border:1.5px solid var(--violet-lt);border-radius:2px;transform:rotate(45deg)}
+.tier.feature li::before{border-color:var(--gold)}
+.tier .btn{margin-top:22px;text-align:center}
+.ribbon{position:absolute;top:-1px;right:20px;font-family:var(--mono);font-size:9px;
+  letter-spacing:.2em;text-transform:uppercase;background:var(--gold);
+  color:var(--midnight);padding:4px 10px;border-radius:0 0 5px 5px;font-weight:600}
+
+/* ---------- console / code ---------- */
+.console{border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  background:#0B0917;margin:0}
+.console .bar{display:flex;align-items:center;gap:8px;padding:10px 15px;
+  border-bottom:1px solid var(--line);background:rgba(24,18,49,.7);
+  font-family:var(--mono);font-size:10px;letter-spacing:.17em;
+  text-transform:uppercase;color:var(--muted)}
+.console pre{margin:0;padding:17px;overflow-x:auto;font-family:var(--mono);
+  font-size:12.2px;line-height:1.72;color:#CFC6EE;white-space:pre;max-width:100%}
+.console .c-k{color:var(--violet-lt)}
+.console .c-s{color:var(--gold)}
+.console .c-c{color:#6E6490}
+
+/* ---------- drop zone ---------- */
+.drop{border:1.5px dashed rgba(167,139,250,.32);border-radius:14px;padding:44px 24px;
+  text-align:center;background:rgba(18,14,32,.55);transition:.2s;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--gold);background:rgba(245,208,96,.05)}
+.drop svg{width:38px;height:42px;margin-bottom:14px;opacity:.85}
+.drop b{display:block;font-size:15px;color:var(--ink);margin-bottom:6px;font-weight:600}
+.drop small{color:var(--muted);font-size:12.5px}
+
+/* ---------- result ---------- */
+.result{margin-top:20px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.result .row{display:flex;gap:14px;padding:13px 16px;border-bottom:1px solid rgba(167,139,250,.09);
+  font-size:13px;align-items:flex-start}
+.result .row:last-child{border-bottom:0}
+.result .row .k{font-family:var(--mono);font-size:10px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--violet-lt);min-width:118px;padding-top:2px;flex:0 0 auto}
+.result .row .v{font-family:var(--mono);font-size:12px;color:var(--ink);
+  word-break:break-all;line-height:1.6}
+.badge{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);
+  font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:4px 10px;border-radius:5px}
+.badge.ok{color:var(--pass);background:rgba(34,197,94,.12)}
+.badge.warn{color:var(--gold);background:rgba(245,208,96,.12)}
+.badge.no{color:var(--fail);background:rgba(248,113,113,.12)}
+
+/* ---------- notice ---------- */
+.notice{border:1px solid rgba(245,208,96,.3);border-left:3px solid var(--gold);
+  border-radius:9px;padding:16px 19px;background:rgba(245,208,96,.05);margin:26px 0}
+.notice p{margin:0;font-size:13.2px}
+.notice b{color:var(--gold)}
+
+/* ---------- steps ---------- */
+.steps{counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;position:relative;padding:0 0 26px 52px}
+.steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:-2px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--gold);
+  border:1px solid rgba(245,208,96,.35);border-radius:7px;width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center}
+.steps li::after{content:"";position:absolute;left:17px;top:36px;bottom:2px;
+  width:1px;background:linear-gradient(180deg,rgba(167,139,250,.3),transparent)}
+.steps li:last-child::after{display:none}
+.steps b{display:block;color:var(--ink);font-size:14.5px;margin-bottom:5px;font-weight:600}
+.steps p{margin:0;font-size:13.5px}
+
+/* ---------- footer ---------- */
+footer{margin-top:40px;border-top:1px solid var(--line);padding:38px 0 46px}
+footer .cols{display:grid;gap:30px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+footer h4{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--violet-lt);margin:0 0 13px;font-weight:400}
+footer a,footer span{display:block;color:var(--muted);font-size:13px;padding:4px 0;border:0}
+footer a:hover{color:var(--gold)}
+footer .legal{margin-top:34px;padding-top:20px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:#6E6490;line-height:1.9}
+
+@media (max-width:760px){
+  table.t th{white-space:normal}
+  table.t th,table.t td{padding:10px}
+  table.t{font-size:12.8px}
+}
+@media (max-width:640px){
+  /* Brand on its own row, links become one horizontally scrollable strip
+     instead of wrapping into a ragged block beside the logo. */
+  .nav .wrap{flex-wrap:wrap;gap:10px;padding:12px 24px 0}
+  .brand{width:100%}
+  .nav nav{width:100%;margin-left:0;flex-wrap:nowrap;overflow-x:auto;
+    padding-bottom:10px;scrollbar-width:none;-ms-overflow-style:none}
+  .nav nav::-webkit-scrollbar{display:none}
+  .nav nav a{flex:0 0 auto}
+  section{padding:44px 0}.hero{padding:52px 0 40px}
+  .result .row{flex-direction:column;gap:5px}
+  .result .row .k{min-width:0}
+  .console pre{font-size:11.4px;padding:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.001ms !important;animation-duration:.001ms !important}
+  html{scroll-behavior:auto}
+}

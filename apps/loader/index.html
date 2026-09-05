@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sanctum SecOps — Loader Control Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --midnight:#0A0814; --surface:#120E20; --surface-2:#181231;
+    --violet:#7C3AED; --violet-lt:#A78BFA;
+    --gold:#F5D060; --gold-dk:#D4A017;
+    --ink:#EDE9FB; --muted:#9C93BC; --line:rgba(167,139,250,.18);
+    --pass:#22C55E;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--midnight);color:var(--ink);
+    font-family:Manrope,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;
+    background:radial-gradient(60% 45% at 50% -10%,rgba(124,58,237,.20),transparent 70%),
+               radial-gradient(40% 30% at 90% 100%,rgba(212,160,23,.08),transparent 70%)}
+  .wrap{position:relative;max-width:1180px;margin:0 auto;padding:48px 24px 96px}
+
+  header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:40px}
+  .seal{display:inline-flex;align-items:center;gap:14px}
+  .hex{width:40px;height:44px;flex:0 0 auto}
+  h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;
+    font-size:clamp(28px,4.2vw,44px);letter-spacing:.01em;margin:0;line-height:1.1}
+  h1 span{color:var(--gold)}
+  .kicker{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;
+    letter-spacing:.34em;text-transform:uppercase;color:var(--violet-lt);margin:0 0 12px}
+  .lede{color:var(--muted);max-width:64ch;margin:14px 0 0;font-size:15px;line-height:1.65}
+
+  .stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .stat{border:1px solid var(--line);border-radius:999px;padding:7px 14px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);background:rgba(24,18,49,.6)}
+  .stat b{color:var(--gold);font-weight:500}
+
+  section{margin:44px 0 0}
+  h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:26px;
+    margin:0 0 6px;letter-spacing:.01em}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 18px;line-height:1.6}
+  .sub code{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--violet-lt)}
+  .sub a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(245,208,96,.3)}
+
+  .grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+  button.tile{appearance:none;cursor:pointer;text-align:left;
+    background:linear-gradient(180deg,var(--surface-2),var(--surface));
+    border:1px solid var(--line);border-radius:12px;padding:13px 15px;color:var(--ink);
+    font-family:Manrope,sans-serif;transition:border-color .18s,transform .18s,box-shadow .18s}
+  button.tile:hover{border-color:rgba(245,208,96,.55);transform:translateY(-2px);
+    box-shadow:0 10px 26px rgba(0,0,0,.45),0 0 0 1px rgba(245,208,96,.12)}
+  button.tile .key{display:block;font-family:'JetBrains Mono',monospace;font-size:10.5px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--violet-lt);margin-bottom:6px}
+  button.tile .txt{display:block;font-size:13.5px;font-weight:500;line-height:1.35}
+  button.tile .dir{display:inline-block;margin-top:8px;font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding:2px 7px;border-radius:4px}
+  .dir.enter{color:var(--pass);background:rgba(34,197,94,.12)}
+  .dir.exit{color:var(--gold);background:rgba(245,208,96,.12)}
+  .dir.fail{color:#F87171;background:rgba(248,113,113,.12)}
+
+  .row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+  .btn{appearance:none;cursor:pointer;border-radius:9px;padding:10px 16px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;text-decoration:none;display:inline-block;
+    border:1px solid var(--line);background:rgba(24,18,49,.7);color:var(--ink);transition:.18s}
+  .btn:hover{border-color:rgba(245,208,96,.55);color:var(--gold)}
+  .btn.gold{border-color:rgba(245,208,96,.5);color:var(--gold);
+    background:linear-gradient(180deg,rgba(245,208,96,.12),rgba(212,160,23,.05))}
+  .btn.on{border-color:var(--gold);color:var(--midnight);background:var(--gold);font-weight:500}
+
+  .links{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+  a.card{display:block;text-decoration:none;color:var(--ink);border:1px solid var(--line);
+    border-radius:12px;padding:16px;background:linear-gradient(180deg,var(--surface-2),var(--surface));
+    transition:.18s}
+  a.card:hover{border-color:rgba(245,208,96,.55);transform:translateY(-2px)}
+  a.card b{display:block;font-size:14.5px;font-weight:700;margin-bottom:5px}
+  a.card small{display:block;color:var(--muted);font-size:12.5px;line-height:1.5}
+
+  footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);
+    color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">Sanctum SecOps LLC · Web Estate</p>
+    <div class="seal">
+      <svg class="hex" viewBox="0 0 40 44" aria-hidden="true">
+        <path d="M20 1.5 37.5 11.5v21L20 42.5 2.5 32.5v-21z" fill="none" stroke="#7C3AED" stroke-width="2"/>
+        <path d="M20 12v20M20 20l-6-5M20 20l6-5" fill="none" stroke="#F5D060" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <h1>Loader <span>Control Panel</span></h1>
+    </div>
+    <p class="lede">Every cinematic gate, transition and validation sequence in the estate, in one
+      place. Click any tile to play it full-screen. All modules are dependency-free, build-free
+      drop-ins served from <code style="font-family:'JetBrains Mono',monospace;color:#A78BFA">/lib</code>.</p>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <!-- ============ STAGE GATE ============ -->
+  <section>
+    <h2>Stage Gate — corridor entry &amp; exit</h2>
+    <p class="sub"><code>SanctumGate.play(key)</code> · corridor dolly, gold hexagon seal, embers.
+      Entry pushes in, exit pulls back. <a href="demos/stage-gate/">Open original demo →</a></p>
+    <div class="grid" id="g-stage"></div>
+  </section>
+
+  <!-- ============ PULSE GATE ============ -->
+  <section>
+    <h2>Pulse Gate — session transitions</h2>
+    <p class="sub"><code>PulseGate.play({transition})</code> · three gold-to-violet bars with the
+      <span id="variant-name">depth-tilt</span> treatment.
+      <a href="demos/pulse-gate/">Open original demo →</a></p>
+    <div class="row">
+      <a class="btn" id="v-depth" href="?pulse=depth">Variant: depth / shimmer</a>
+      <a class="btn" id="v-glitch" href="?pulse=glitch">Variant: blur glitch</a>
+      <button class="btn gold" onclick="PulseGate.hold({transition:'handshake'});setTimeout(()=>PulseGate.close(),5000)">Hold 5s (async pattern)</button>
+    </div>
+    <div class="grid" id="g-pulse"></div>
+  </section>
+
+  <!-- ============ CYGNET GATE ============ -->
+  <section>
+    <h2>CygnetLib Validation Gate</h2>
+    <p class="sub"><code>CygnetGate.play({validationType,stage})</code> · CYGNET CERTIFIED seal,
+      provider line and fingerprint. Pick a validation type, then a stage — or run the whole suite.
+      <a href="demos/cygnet-gate/">Open validation arena →</a></p>
+    <div class="row" id="cy-types"></div>
+    <div class="row">
+      <button class="btn gold" id="cy-suite-pass">Run suite → pass</button>
+      <button class="btn" id="cy-suite-fail">Run suite → fail</button>
+    </div>
+    <div class="grid" id="g-cygnet"></div>
+  </section>
+
+  <!-- ============ SESSION GATE ============ -->
+  <section>
+    <h2>Session Gate — sign-in / sign-out card</h2>
+    <p class="sub"><code>SessionGate.signIn()</code> / <code>SessionGate.signOut()</code> ·
+      branded checklist card: session token → key material → Entra ID → Cloudflare Access → vault.</p>
+    <div class="row">
+      <button class="btn gold" onclick="SessionGate.signIn({autoEnter:true})">Play “Signing In” → Vault unsealed</button>
+      <button class="btn" onclick="SessionGate.signOut({})">Play “Signing Out” → Vault sealed</button>
+    </div>
+  </section>
+
+  <!-- ============ CHAINS ============ -->
+  <section>
+    <h2>Chained sequences</h2>
+    <p class="sub">The real production flows — gate into card into console.</p>
+    <div class="row">
+      <button class="btn gold" id="chain-login">Full login chain</button>
+      <button class="btn" id="chain-logout">Full logout chain</button>
+      <button class="btn" id="chain-issue">Issue certificate flow</button>
+    </div>
+  </section>
+
+  <!-- ============ FULL PAGES ============ -->
+  <section>
+    <h2>Full experiences</h2>
+    <p class="sub">Complete pages, not just loaders.</p>
+    <div class="links">
+      <a class="card" href="demos/admin-console/"><b>Admin Console Demo</b><small>Seven operational sections, identity strip, entry → console → logout, action loading buttons.</small></a>
+      <a class="card" href="demos/cygnet-gate/"><b>CygnetLib Validation Arena</b><small>IETF interop runner UI with streaming console and Run Suite.</small></a>
+      <a class="card" href="demos/auth0-gate/preview.html"><b>Auth0 Universal Login v4 (preview)</b><small>QA harness with a mock login card. Never upload this file to Auth0.</small></a>
+      <a class="card" href="demos/stage-gate/"><b>Stage Gate gateway</b><small>Controls for every entry/exit action, plus link interception.</small></a>
+      <a class="card" href="demos/pulse-gate/"><b>Pulse Gate grid</b><small>All session transitions as a clickable grid.</small></a>
+      <a class="card" href="docs/README-auth0-gate.md"><b>Docs &amp; runbooks</b><small>Per-module READMEs, site audit, admin console deployment runbook, offerings overview.</small></a>
+    </div>
+  </section>
+
+  <footer>SANCTUM SECOPS LLC · PINE CITY, NY · MIDNIGHT #0A0814 / VIOLET #7C3AED / GOLD #F5D060</footer>
+</div>
+
+<!-- ===== loaders ===== -->
+<script src="lib/sanctum-gate.js" data-img="shared/intro/corridor.jpg"></script>
+<script src="lib/session-gate.js"></script>
+<script src="lib/cygnet-gate.js" data-img="shared/intro/corridor.jpg"></script>
+<script>
+  // Pulse variant is chosen by ?pulse=depth|glitch (both define window.PulseGate).
+  var _pv = new URLSearchParams(location.search).get('pulse') === 'glitch' ? 'glitch' : 'depth';
+  document.write('<script src="lib/pulse-gate' + (_pv === 'glitch' ? '.glitch' : '') + '.js"><\/script>');
+</script>
+<script>
+(function () {
+  var pv = new URLSearchParams(location.search).get('pulse') === 'glitch' ? 'glitch' : 'depth';
+  document.getElementById('v-' + pv).classList.add('on');
+  document.getElementById('variant-name').textContent = pv === 'glitch' ? 'blur-glitch' : 'depth-tilt';
+
+  window.CYGNET_GATE_IMG = 'shared/intro/corridor.jpg';
+
+  function tile(key, text, dirClass, dirLabel, onClick) {
+    var b = document.createElement('button');
+    b.className = 'tile';
+    b.innerHTML = '<span class="key"></span><span class="txt"></span>' +
+      (dirLabel ? '<span class="dir ' + dirClass + '"></span>' : '');
+    b.querySelector('.key').textContent = key;
+    b.querySelector('.txt').textContent = text;
+    if (dirLabel) b.querySelector('.dir').textContent = dirLabel;
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  // ---- Stage Gate ----
+  var nStage = 0, gStage = document.getElementById('g-stage');
+  Object.keys(SanctumGate.ACTIONS).forEach(function (k) {
+    var a = SanctumGate.ACTIONS[k]; nStage++;
+    gStage.appendChild(tile(k, a.text, a.dir, a.dir, function () { SanctumGate.play(k); }));
+  });
+
+  // ---- Pulse Gate ----
+  var nPulse = 0, gPulse = document.getElementById('g-pulse');
+  Object.keys(PulseGate.TRANSITIONS).forEach(function (k) {
+    nPulse++;
+    gPulse.appendChild(tile(k, PulseGate.TRANSITIONS[k], '', '', function () {
+      PulseGate.play({ transition: k });
+    }));
+  });
+
+  // ---- Cygnet Gate ----
+  var types = Object.keys(CygnetGate.TYPES);
+  var active = types[0], nCygnet = 0;
+  types.forEach(function (t) { nCygnet += Object.keys(CygnetGate.TYPES[t].stages).length; });
+
+  var rowTypes = document.getElementById('cy-types');
+  var gCygnet = document.getElementById('g-cygnet');
+
+  function renderStages() {
+    gCygnet.innerHTML = '';
+    var def = CygnetGate.TYPES[active];
+    Object.keys(def.stages).forEach(function (s) {
+      var cls = s === 'verify-pass' ? 'enter' : (s === 'verify-fail' ? 'fail' : '');
+      var lbl = s === 'verify-pass' ? 'pass' : (s === 'verify-fail' ? 'fail' : '');
+      gCygnet.appendChild(tile(s, def.stages[s], cls, lbl, function () {
+        CygnetGate.play({ validationType: active, stage: s });
+      }));
+    });
+    [].forEach.call(rowTypes.children, function (b) {
+      b.classList.toggle('on', b.dataset.type === active);
+    });
+  }
+  types.forEach(function (t) {
+    var b = document.createElement('button');
+    b.className = 'btn'; b.dataset.type = t;
+    b.textContent = CygnetGate.TYPES[t].label;
+    b.addEventListener('click', function () { active = t; renderStages(); });
+    rowTypes.appendChild(b);
+  });
+  renderStages();
+  document.getElementById('cy-suite-pass').addEventListener('click', function () {
+    CygnetGate.runSuite(active, { pass: true });
+  });
+  document.getElementById('cy-suite-fail').addEventListener('click', function () {
+    CygnetGate.runSuite(active, { pass: false });
+  });
+
+  // ---- chains ----
+  document.getElementById('chain-login').addEventListener('click', function () {
+    SanctumGate.play({ dir: 'enter', action: 'access-granted' }, function () {
+      SessionGate.signIn({ autoEnter: true });
+    });
+  });
+  document.getElementById('chain-logout').addEventListener('click', function () {
+    SessionGate.signOut({ onDone: function () { SanctumGate.play('session-secured'); } });
+  });
+  document.getElementById('chain-issue').addEventListener('click', function () {
+    PulseGate.hold({ transition: 'handshake' });
+    setTimeout(function () {
+      PulseGate.close();
+      CygnetGate.runSuite('pki-chain', {
+        pass: true,
+        done: function () { SanctumGate.play('chain-verified'); }
+      });
+    }, 2200);
+  });
+
+  // ---- stats ----
+  var total = nStage + nPulse + nCygnet;
+  document.getElementById('stats').innerHTML =
+    '<span class="stat">Total sequences <b>' + total + '</b></span>' +
+    '<span class="stat">Stage gate <b>' + nStage + '</b></span>' +
+    '<span class="stat">Pulse transitions <b>' + nPulse + '</b></span>' +
+    '<span class="stat">Validation stages <b>' + nCygnet + '</b></span>' +
+    '<span class="stat">Modules <b>5</b></span>' +
+    '<span class="stat">Build step <b>none</b></span>';
+})();
+</script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
+</html>

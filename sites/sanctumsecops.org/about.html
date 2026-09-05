@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About — Sanctum Timestamp</title>
+<meta name="description" content="Who operates the Sanctum transparency log, the entity structure behind it, and how to reach us.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://sanctumsecops.org/about.html">
+<meta name="theme-color" content="#0A0814">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/brand.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:34px">
+    <p class="kicker">Operator disclosure</p>
+    <h1>Who runs this <span class="gold">log</span></h1>
+    <p class="lede" style="margin-top:16px">
+      A transparency log operator should be identifiable, reachable, and legally locatable. Anonymous
+      trust services are a contradiction. This page states who we are without asking you to take
+      any of it on faith — every proof the service issues is verifiable without us.
+    </p>
+  </header>
+
+  <section>
+    <div class="sechead">
+      <h2>Operating entity</h2>
+      <p>Sanctum SecOps LLC operates the service and is the contracting party.</p>
+    </div>
+    <div class="tscroll"><table class="t">
+      <thead><tr><th>Field</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Legal name</td><td><strong>Sanctum SecOps LLC</strong></td></tr>
+        <tr><td>Principal address</td><td><strong>128 Dry Run Rd, Pine City, NY 14871</strong></td></tr>
+        <tr><td>Telephone</td><td><strong>+1 (607) 378-8287</strong></td></tr>
+        <tr><td>Email</td><td><strong>Brian@sso-labs.com</strong></td></tr>
+        <tr><td>SAM UEI</td><td><strong>H3A2Z4R3HE87</strong></td></tr>
+        <tr><td>CAGE / NCAGE</td><td><strong>20XS3</strong></td></tr>
+        <tr><td>DUNS</td><td><strong>145042588</strong></td></tr>
+        <tr><td>Founder</td><td><strong>Brian Vicente</strong></td></tr>
+        <tr><td>Private enterprise number</td><td><strong>1.3.6.1.4.1.65953</strong></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <h2>Group structure</h2>
+      <p>Four distinct legal entities. Separating the operator, the intellectual property, and the
+        research function is deliberate — it keeps the log's operation independent of licensing and
+        product decisions.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <span class="num">Operator</span>
+        <h3>Sanctum SecOps LLC</h3>
+        <p>The contracting and service-delivery entity. Holds the federal registrations, runs the
+          log, and is the party you buy from and hold accountable.</p>
+      </div>
+      <div class="card">
+        <span class="num">Intellectual property</span>
+        <h3>Sanctum IP Co</h3>
+        <p>Delaware corporation formed to hold the patent estate and license it to operating
+          entities. Isolating IP from operations is standard practice and protects the portfolio
+          from operating liabilities.</p>
+      </div>
+      <div class="card">
+        <span class="num">Research and labs</span>
+        <h3>SSO-LABS Inc</h3>
+        <p>Delaware corporation covering research, standards participation, and pre-product
+          engineering — including the post-quantum and transparency-log work this service is built
+          on.</p>
+      </div>
+      <div class="card">
+        <span class="num">Ventures</span>
+        <h3>Sanctum Cygnets Inc</h3>
+        <p>Delaware corporation for productised spin-outs of platform components developed inside
+          the group.</p>
+      </div>
+    </div>
+    <div class="notice">
+      <p><b>Disclosure.</b> The three Delaware corporations were incorporated in August 2026 and
+        the group's internal ownership and licensing arrangements are being documented. Until that
+        is complete, <strong>Sanctum SecOps LLC</strong> is the entity that contracts, delivers, and
+        is answerable for this service. We would rather state that plainly than present a tidier
+        structure than the one that exists.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead"><h2>Standards and technical posture</h2></div>
+    <div class="grid g3">
+      <div class="card lift">
+        <span class="num">Algorithms</span>
+        <h3>CNSA 2.0 aligned</h3>
+        <p>ML-KEM (FIPS 203) and ML-DSA (FIPS 204) for post-quantum operations, with classical
+          algorithms retained in composite constructions rather than replaced outright.</p>
+      </div>
+      <div class="card lift">
+        <span class="num">Log</span>
+        <h3>RFC 6962 lineage</h3>
+        <p>Leaf and node domain separation, inclusion proofs, and consistency proofs follow the
+          Certificate Transparency construction.</p>
+      </div>
+      <div class="card lift">
+        <span class="num">Standards work</span>
+        <h3>IETF participation</h3>
+        <p>Internet-Drafts covering post-quantum certificate agility, anti-downgrade at renewal,
+          and PQC telemetry. Contributing to the specifications rather than only consuming them.</p>
+      </div>
+      <div class="card lift">
+        <span class="num">Related estate</span>
+        <h3>Live services</h3>
+        <p>A published <a href="https://pki.sanctumsecops.com">PKI repository</a> and a
+          <a href="https://arena.sanctumsecops.com">PQC Validation Arena</a> performing real
+          ML-DSA-65 and ML-KEM-768 operations in the browser.</p>
+      </div>
+      <div class="card lift">
+        <span class="num">Hardware</span>
+        <h3>Non-exportable keys</h3>
+        <p>Attested signing keys are generated on YubiKey tokens in PIV slots and cannot be
+          extracted, so attested signatures cannot be produced from copied key material.</p>
+      </div>
+      <div class="card lift">
+        <span class="num">Patents</span>
+        <h3>Pending</h3>
+        <p>Applications filed covering composite anti-downgrade renewal, PQC issuance control, and
+          structural audit invariants for PKI. Patent pending status is claimed; no granted claims
+          are asserted.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <h2>Contact</h2>
+      <p>Security reports, enrollment enquiries, and federal teaming all route to the same place.</p>
+    </div>
+    <div class="grid g3">
+      <div class="card">
+        <span class="num">General and sales</span>
+        <h3>Brian@sso-labs.com</h3>
+        <p>Enrollment, pricing, scoping, and federal teaming. Telephone
+          <strong>+1 (607) 378-8287</strong>.</p>
+      </div>
+      <div class="card" style="border-color:rgba(245,208,96,.4)">
+        <span class="num" style="color:var(--gold)">Security</span>
+        <h3>Report a flaw</h3>
+        <p>If you find a way to make the log produce an invalid proof, accept a forged attestation,
+          or violate append-only consistency, tell us. Good-faith reports will not be met with legal
+          threats.</p>
+      </div>
+      <div class="card">
+        <span class="num">Auditors</span>
+        <h3>Free verification access</h3>
+        <p>Assessors and auditors verifying a client's receipts are never charged and never need an
+          account. Ask and we will help you check the proof, including against us.</p>
+      </div>
+    </div>
+    <div class="btnrow">
+      <a class="btn gold" href="mailto:Brian@sso-labs.com">Email us</a>
+      <a class="btn" href="https://sanctumsecops.com">Commercial services</a>
+      <a class="btn" href="pricing.html">Pricing</a>
+    </div>
+  </section>
+
+</div>
+
+<script src="assets/inc.js"></script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
+</html>

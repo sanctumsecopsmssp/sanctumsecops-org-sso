@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sanctum SecOps — Stage Gate</title>
+<meta name="description" content="Sanctum SecOps cinematic entry/exit stage gate loader for the Sanctum web estate.">
+<style>
+  :root{
+    --obsidian:#0A0814; --obsidian-2:#110d1f; --surface:#100c1d;
+    --surface-2:#15102A; --border:#2a2342; --border-strong:#3a3160;
+    --violet:#7C3AED; --violet-soft:#A78BFA; --violet-deep:#5B21B6;
+    --gold:#D4A017; --gold-soft:#F5D060;
+    --text:#ECE9F5; --text-muted:#A09BB8; --text-faint:#6E6985;
+    --font-display:'Cormorant Garamond',Georgia,serif;
+    --font-body:'Satoshi',-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,monospace;
+    --radius:8px; --radius-lg:14px; --shadow:0 4px 18px rgba(0,0,0,.45);
+    --ease:cubic-bezier(0.16,1,0.3,1);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:radial-gradient(circle at 20% 0%, var(--surface-2), var(--obsidian) 60%);
+    color:var(--text); font-family:var(--font-body); line-height:1.6;
+    min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:880px; margin:0 auto; padding:64px 24px 96px}
+  .eyebrow{
+    text-transform:uppercase; letter-spacing:.18em; color:var(--text-muted);
+    font-size:11px; margin:0 0 14px; display:flex; align-items:center; gap:10px;
+  }
+  .mark{width:24px; height:24px; flex-shrink:0}
+  h1{
+    font-family:var(--font-display); font-weight:600; font-size:42px;
+    margin:0 0 8px; color:var(--text); letter-spacing:-0.01em;
+  }
+  .tagline{
+    font-family:var(--font-display); font-style:italic; color:var(--gold);
+    font-size:18px; margin:0 0 36px;
+  }
+  .panel{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:28px; box-shadow:var(--shadow);
+    margin-bottom:22px;
+  }
+  .panel h2{
+    font-family:var(--font-body); font-size:13px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted);
+    margin:0 0 6px;
+  }
+  .panel p{font-size:13.5px; color:var(--text-muted); margin:0 0 18px}
+  .row{display:flex; flex-wrap:wrap; gap:10px}
+  .btn{
+    appearance:none; cursor:pointer; font-family:var(--font-mono);
+    font-size:12.5px; letter-spacing:.04em; color:var(--text);
+    background:var(--surface-2); border:1px solid var(--border-strong);
+    border-radius:var(--radius); padding:11px 15px; transition:
+      border-color .25s var(--ease), color .25s var(--ease), transform .15s var(--ease),
+      box-shadow .25s var(--ease);
+  }
+  .btn:hover{color:var(--gold-soft); border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,160,23,.12)}
+  .btn:active{transform:translateY(1px)}
+  .btn.enter{border-color:var(--violet-deep)}
+  .btn.enter:hover{border-color:var(--violet-soft); color:var(--violet-soft); box-shadow:0 0 0 3px rgba(124,58,237,.16)}
+  .btn.exit{border-color:var(--gold)}
+  .exit-link{
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono);
+    font-size:12.5px; color:var(--gold-soft); text-decoration:none;
+    border:1px solid var(--gold); border-radius:var(--radius); padding:11px 15px;
+    transition:background .25s var(--ease), color .25s var(--ease);
+  }
+  .exit-link:hover{background:rgba(212,160,23,.1); color:#fff}
+  .exit-link::before{content:'↗'; opacity:.7}
+  .code{
+    font-family:var(--font-mono); font-size:12px; color:var(--gold-soft);
+    background:rgba(0,0,0,.25); border:1px solid var(--border); border-radius:6px;
+    padding:14px 16px; white-space:pre; overflow:auto; margin:0;
+  }
+  .code .c{color:var(--text-faint)}
+  footer{
+    border-top:1px solid var(--border); padding-top:22px; margin-top:36px;
+    color:var(--text-faint); font-size:12px; display:flex; justify-content:space-between;
+    flex-wrap:wrap; gap:10px;
+  }
+  footer a{color:var(--text-muted); text-decoration:none}
+  footer a:hover{color:var(--violet-soft)}
+</style>
+</head>
+<body data-gate-image="intro/corridor.jpg">
+<div class="wrap">
+  <p class="eyebrow">
+    <svg class="mark" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="30,3 57,18 57,42 30,57 3,42 3,18" fill="none" stroke="#7C3AED" stroke-width="2.5"/>
+      <path d="M30 16 L30 30 M30 30 L42 37 M30 30 L18 37" stroke="#F5D060" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="30" cy="30" r="3.5" fill="#F5D060"/>
+    </svg>
+    SANCTUM SECOPS &middot; STAGE GATE
+  </p>
+  <h1>Stage Gate Loader</h1>
+  <p class="tagline">Entry and exit to the Sanctum web estate.</p>
+
+  <div class="panel">
+    <h2>Entry — forward push-in</h2>
+    <p>The corridor camera pushes in toward the seal. Use on first paint of any gated page.</p>
+    <div class="row">
+      <button class="btn enter" data-play="access-granted">Access Granted</button>
+      <button class="btn enter" data-play="identity-verified">Identity Verified</button>
+      <button class="btn enter" data-play="chain-verified">Chain Verified</button>
+      <button class="btn enter" data-play="vault-opened">Vault Opened</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Exit — reverse pull-back</h2>
+    <p>Same aesthetic, reversed transitional direction. Use before leaving a gated surface.</p>
+    <div class="row">
+      <button class="btn exit" data-play="session-secured">Session Secured</button>
+      <button class="btn exit" data-play="access-closed">Access Closed</button>
+      <button class="btn exit" data-play="identity-cleared">Identity Cleared</button>
+      <button class="btn exit" data-play="perimeter-sealed">Perimeter Sealed</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Live exit + navigate</h2>
+    <p>Outbound links tagged <code>data-gate-exit</code> play the exit loader, then navigate.</p>
+    <div class="row">
+      <a class="exit-link" href="https://pki.sanctumsecops.com/" data-gate-exit="perimeter-sealed">pki.sanctumsecops.com</a>
+      <a class="exit-link" href="https://sanctumsecops.com/" data-gate-exit data-gate-text="CLOSING SANCTUM">sanctumsecops.com</a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Drop-in integration</h2>
+    <pre class="code"><span class="c">&lt;!-- auto entry on page load --&gt;</span>
+&lt;script src="sanctum-gate.js" data-auto-enter="access-granted"&gt;&lt;/script&gt;
+
+<span class="c">&lt;!-- exit before navigating away --&gt;</span>
+&lt;a href="/logout" data-gate-exit="session-secured"&gt;Sign out&lt;/a&gt;
+
+<span class="c">&lt;!-- programmatic --&gt;</span>
+&lt;script&gt;SanctumGate.play({dir:'exit', text:'PERIMETER SEALED'});&lt;/script&gt;</pre>
+  </div>
+
+  <footer>
+    <span>&copy; 2026 Sanctum SecOps LLC. IANA PEN 65953.</span>
+    <span><a href="https://pki.sanctumsecops.com/">PKI Repository</a></span>
+  </footer>
+</div>
+
+<script src="sanctum-gate.js" data-auto-enter="access-granted" data-img="intro/corridor.jpg"></script>
+<script>
+  // demo controls
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-play]');
+    if (!b) return;
+    SanctumGate.play(b.dataset.play);
+  });
+</script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
+</html>
